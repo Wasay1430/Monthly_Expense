@@ -47,9 +47,25 @@ nav button.on span{background:linear-gradient(135deg,var(--ac),var(--ac2));borde
 .cc{border-radius:16px;padding:13px;margin-bottom:10px;background:var(--card);border:1px solid var(--bd);border-left-width:6px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .cc .t{display:flex;justify-content:space-between;align-items:center;gap:8px}.cc .rem{font-size:21px;font-weight:800}
 .cc .bar{height:9px}
+
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sh{background:var(--bg);width:100%;max-width:640px;max-height:90vh;overflow:auto;border-radius:22px 22px 0 0;padding:0 14px calc(22px + env(safe-area-inset-bottom,0px))}
+.sh .hd{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);padding:14px 0 10px;z-index:2;font-size:17px}
+.tap{cursor:pointer}.tap:active{transform:scale(.99)}
+.sc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.sc div{background:rgba(255,255,255,.2);border-radius:12px;padding:8px 4px}.sc small{display:block;font-size:11px}.sc b{font-size:14px}
+.sc1{background:rgba(255,255,255,.2);border-radius:12px;padding:9px;margin-top:8px;font-size:13px}
+.pls{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}.pl{display:inline-flex;gap:4px;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:20px;padding:3px 9px;font-size:12px}
+.in{display:flex;gap:10px;padding:11px;border-radius:14px;margin-bottom:8px;background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--ac);font-size:14px}
+.in.good{border-left-color:var(--ok)}.in.warn{border-left-color:var(--wa)}.in.bad{border-left-color:var(--er)}.in>span{font-size:22px}
+.tot{display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid var(--bd);font-weight:700}
+.bt{display:flex;gap:6px;margin-top:4px;justify-content:flex-end}
+input[type=range]{padding:0;border:0;background:none}
 </style></head><body>
 <main id="app"></main><div class="toast" id="t"></div>
 <nav id="nav"></nav>
+<script>
+window.addEventListener("error",e=>{var a=document.getElementById("app");if(a&&!a.innerHTML.trim())a.innerHTML='<div style="padding:20px"><h3>App load nahi hui</h3><p>Error: '+String(e.message).replace(/</g,"&lt;")+'</p><button onclick="(async()=>{for(const k of await caches.keys())await caches.delete(k);for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();location.reload()})()" style="padding:12px;width:100%">Cache saaf karke dobara kholein</button></div>'});
+</script>
 <script>
 const CATS={"Donations":["Charity","Masjid/Madrasa","Family Support","Other Donation"],"Utility Bills":["Electricity","Gas","Water","Internet","Mobile","Other Utility"],"Self Petrol":["Car Petrol","Motorcycle Petrol","Other Fuel"],"Groceries":["General Grocery","Household Items","Kitchen Items","Other Grocery"],"Guards Fees":["Monthly Guard Fee","Extra/Tip","Other Guard Expense"],"Daily Basis Expenses":["Tea/Coffee","Food/Snacks","Small Purchases","Miscellaneous"],"Loan to be Returned to Papa":["Principal Returned","Partial Repayment","Other"],"Meat Purchase":["Beef","Mutton","Chicken","Fish","Other Meat"],"Car Parking":["Office Parking","Shopping/Market","Other Parking"],"Wife Return to Home via InDrive":["InDrive Fare","Other Ride"],"Yaseen Pion":["Monthly Payment","Extra Payment","Other"]};
 const PAY=["Cash","Bank Transfer","Debit Card","Credit Card","Mobile Wallet","Other"];
@@ -60,7 +76,7 @@ try{const r=localStorage.getItem("hisaab_v1");if(r)S=Object.assign(S,JSON.parse(
 const norm=()=>{S.cfg=Object.assign({url:"",token:"",keep:3},S.cfg);S.q=S.q||[]};norm();
 const save=()=>{try{localStorage.setItem("hisaab_v1",JSON.stringify(S))}catch(e){toast("Save nahi hua!")}};
 const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
-let tab="add",mode="exp",month=today().slice(0,7),FM={date:today(),cat:Object.keys(CATS)[0],pay:"Cash",src:"Salary"};
+let tab="dash",mode="exp",month=today().slice(0,7),FM={date:today(),cat:Object.keys(CATS)[0],pay:"Cash",src:"Salary"};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const f=n=>"Rs "+Math.round(n).toLocaleString("en-US");
@@ -82,7 +98,7 @@ function addView(){
  <label>Amount (Rs)</label><input id="am" type="number" inputmode="decimal" placeholder="0">
  ${exp?`<label>Payment Method</label><select id="pm" onchange="FM.pay=this.value">${opts(PAY,FM.pay)}</select>`:""}
  <button class="p" onclick="addEntry()">Save karein</button></div>
- <h2>Haal ki entries</h2><div class="card">${recent.length?recent.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}<br><button class="s" style="color:var(--er)" onclick="del('${x.t}',${x.id})">Delete</button></div></div>`).join(""):'<span class="mu">Abhi koi entry nahi.</span>'}</div>`}
+ <h2>Haal ki entries</h2><div class="card">${recent.length?recent.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}${btns(x)}</div></div>`).join(""):'<span class="mu">Abhi koi entry nahi.</span>'}</div>`}
 function setCat(v){FM.cat=v;$('#sc').innerHTML=opts(CATS[v])}
 function addEntry(){
  const amt=parseFloat($("#am").value);if(!(amt>0))return toast("Amount likhein");
@@ -94,41 +110,153 @@ function del(t,id){if(!confirm("Delete karein?"))return;const k=t==="e"?"exp":"i
 function monthPick(){return `<input type="month" value="${month}" onchange="month=this.value||month;ensureYear(+month.slice(0,4));draw()" style="margin-bottom:12px">`}
 const CC=["#7c3aed","#f59e0b","#ea580c","#16a34a","#0ea5e9","#db2777","#6366f1","#dc2626","#0891b2","#9333ea","#0f766e"];
 const CI=["🤲","💡","⛽","🛒","💂","☕","🤝","🥩","🅿️","🚕","👤"];
+const SL={ok:"✅ OK",wa:"⚠️ Warning",er:"🔴 Over",mu:"— Budget nahi"};
+const DN=["Itwaar","Peer","Mangal","Budh","Jumeraat","Jumma","Hafta"];
+const mAdd=(m,k)=>{const[y,o]=m.split("-").map(Number),d=new Date(y,o-1+k,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const dimOf=m=>{const[y,o]=m.split("-").map(Number);return new Date(y,o,0).getDate()};
+const btns=x=>`<div class="bt"><button class="s" onclick="edit('${x.t}',${x.id})">✏️ Edit</button><button class="s" style="color:var(--er)" onclick="del('${x.t}',${x.id})">🗑 Delete</button></div>`;
+const rowH=x=>`<div class="row" style="align-items:flex-start"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.cat+" › "+x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right"><b class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}</b>${btns(x)}</div></div>`;
+const lstH=l=>l.length?[...l].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(rowH).join(""):'<span class="mu">Koi entry nahi.</span>';
 function dashView(){
  const ex=inM(dataE(),month),inc=sum(inM(dataI(),month)),spent=sum(ex);
  const budget=Object.keys(CATS).reduce((a,c)=>a+catBud(c),0),bal=inc-spent,rem=budget-spent;
- const [y,m]=month.split("-").map(Number),dim=new Date(y,m,0).getDate();
- const now=today().slice(0,7),days=month===now?+today().slice(8):dim;
+ const dim=dimOf(month),now=today().slice(0,7),days=month===now?+today().slice(8):dim;
  const left=month===now?dim-days+1:(month<now?0:dim);
  const used=budget?Math.min(100,Math.round(spent/budget*100)):0;
  const cls=!budget?"none":rem<0?"bad":spent>=.8*budget?"warn":"good";
- const hero=!budget?`<div class="hero none"><small>Budget abhi set nahi hai</small><div class="big">${f(spent)}</div><small>is mahine ka kharcha</small><br><span class="chip">⚙️ Budget tab mein har category ka budget likhein</span></div>`
- :`<div class="hero ${cls}"><small>💰 Budget mein se kharch karne ke liye bacha</small><div class="big">${rem<0?"-":""}${f(Math.abs(rem))}</div>
- <div class="hb"><i style="width:${used}%"></i></div><small>Budget ${f(budget)} · Kharcha ${f(spent)} · ${Math.round(spent/budget*100)}% use hua</small><br>
- ${rem<0?`<span class="chip">⚠️ Budget se ${f(-rem)} zyada kharch ho gaya</span>`:left>0?`<span class="chip">📅 Rozana ${f(rem/left)} kharch kar sakte hain (${left} din baqi)</span>`:`<span class="chip">Mahina khatam</span>`}</div>`;
+ const hero=!budget?`<div class="hero none tap" onclick="detail('all')"><small>Budget abhi set nahi hai</small><div class="big">${f(spent)}</div><small>is mahine ka kharcha</small><div class="sc1">⚙️ Budget tab mein har category ka budget likhein</div></div>`
+ :`<div class="hero ${cls} tap" onclick="detail('all')"><small>💰 Budget mein se kharch karne ke liye bacha</small><div class="big">${rem<0?"-":""}${f(Math.abs(rem))}</div>
+ <div class="hb"><i style="width:${used}%"></i></div>
+ <div class="sc"><div><small>🎯 Budget</small><b>${f(budget)}</b></div><div><small>💸 Kharcha</small><b>${f(spent)}</b></div><div><small>📊 Use hua</small><b>${Math.round(spent/budget*100)}%</b></div></div>
+ <div class="sc1">${rem<0?`⚠️ Budget se <b>${f(-rem)}</b> zyada kharch ho gaya`:left>0?`📅 Rozana <b>${f(rem/left)}</b> kharch kar sakte hain · ${left} din baqi`:"🏁 Mahina khatam"}</div>
+ <small style="opacity:.8;display:block;margin-top:8px">👆 Tafseel ke liye tap karein</small></div>`;
  const rows=Object.keys(CATS).map((c,i)=>({c,i,b:catBud(c),a:sum(ex.filter(x=>x.cat===c))}));
- const cards=rows.map(r=>{const col=CC[r.i%CC.length],left=r.b-r.a,w=r.b?Math.min(100,r.a/r.b*100):0,[s,cl]=status(r.b,r.a);
+ const cards=rows.map(r=>{const col=CC[r.i%CC.length],lf=r.b-r.a,w=r.b?Math.min(100,r.a/r.b*100):0,cl=status(r.b,r.a)[1];
   const barc=cl==="er"?"var(--er)":cl==="wa"?"var(--wa)":col;
-  return `<div class="cc" style="border-left-color:${col}"><div class="t"><span>${CI[r.i%CI.length]} <b>${esc(r.c)}</b></span>${r.b?`<span class="rem ${left<0?"er":""}" style="${left<0?"":"color:"+col}">${left<0?"-":""}${f(Math.abs(left))}</span>`:`<span class="mu">Budget set nahi</span>`}</div>
+  return `<div class="cc tap" onclick="detail('cat',${r.i})" style="border-left-color:${col}"><div class="t"><span>${CI[r.i%CI.length]} <b>${esc(r.c)}</b></span>${r.b?`<span style="text-align:right"><span class="rem" style="color:${lf<0?"var(--er)":col}">${lf<0?"-":""}${f(Math.abs(lf))}</span><br><small class="mu">${lf<0?"zyada kharch":"bacha"}</small></span>`:`<span class="mu">Budget set nahi</span>`}</div>
   <div class="bar"><i style="width:${w}%;background:${barc}"></i></div>
-  <div style="display:flex;justify-content:space-between;margin-top:5px"><small class="mu">Kharcha ${f(r.a)}${r.b?" / Budget "+f(r.b):""}</small><small class="${cl}"><b>${r.b?(left<0?"Over":"bacha"):""}${r.b&&left>=0&&cl!=="ok"?" · "+s:""}</b></small></div></div>`}).join("");
+  <div class="pls"><span class="pl">💸 ${f(r.a)}</span>${r.b?`<span class="pl">🎯 ${f(r.b)}</span><span class="pl ${cl}">${SL[cl]}</span>`:""}<span class="pl mu" style="margin-left:auto">tafseel ›</span></div></div>`}).join("");
  return `<h1>Dashboard</h1>${monthPick()}${hero}
- <div class="mini"><div style="background:linear-gradient(135deg,#16a34a,#22c55e)"><small>⬆️ Income</small><b>${f(inc)}</b></div><div style="background:linear-gradient(135deg,#ea580c,#f59e0b)"><small>⬇️ Kharcha</small><b>${f(spent)}</b></div>
- <div style="background:linear-gradient(135deg,#2563eb,#6366f1)"><small>🏦 Income − Kharcha</small><b>${f(bal)}</b></div><div style="background:linear-gradient(135deg,#7c3aed,#db2777)"><small>📈 Savings rate</small><b>${inc?Math.round(bal/inc*100)+"%":"–"}</b><small>Target ${S.target}%</small></div></div>
+ <div class="mini"><div class="tap" onclick="detail('inc')" style="background:linear-gradient(135deg,#16a34a,#22c55e)"><small>⬆️ Income</small><b>${f(inc)}</b></div><div class="tap" onclick="detail('all')" style="background:linear-gradient(135deg,#ea580c,#f59e0b)"><small>⬇️ Kharcha</small><b>${f(spent)}</b></div>
+ <div class="tap" onclick="detail('bal')" style="background:linear-gradient(135deg,#2563eb,#6366f1)"><small>🏦 Income − Kharcha</small><b>${f(bal)}</b></div><div class="tap" onclick="detail('bal')" style="background:linear-gradient(135deg,#7c3aed,#db2777)"><small>📈 Savings rate</small><b>${inc?Math.round(bal/inc*100)+"%":"–"}</b><small>Target ${S.target}%</small></div></div>
  <h2>Category wise — kitna bacha hai</h2>${cards}`}
+/* ---------- detail sheets ---------- */
+let SH=null;
+function renderSh(){let o=$("#ov");if(!SH){if(o)o.remove();document.body.style.overflow="";return}
+ const r=SH.fn();if(!o){o=document.createElement("div");o.id="ov";o.className="ov";o.onclick=e=>{if(e.target===o)closeSh()};document.body.appendChild(o)}
+ const k=o.firstChild?o.firstChild.scrollTop:0;
+ o.innerHTML=`<div class="sh"><div class="hd"><b>${r.title}</b><button class="s" onclick="closeSh()">✕ Band</button></div>${r.html}</div>`;
+ if(k)o.firstChild.scrollTop=k;document.body.style.overflow="hidden"}
+function closeSh(){SH=null;renderSh()}
+function detail(k,i){SH={fn:()=>detailH(k,i)};renderSh()}
+function detailH(k,i){
+ const ex=inM(dataE(),month).map(x=>({...x,t:"e"})),inc=inM(dataI(),month).map(x=>({...x,t:"i"})),sp=sum(ex),iv=sum(inc);
+ if(k==="cat"){const c=Object.keys(CATS)[i],it=ex.filter(x=>x.cat===c),a=sum(it),b=catBud(c),lf=b-a;
+  const subs=CATS[c].map(s=>({s,a:sum(it.filter(x=>x.sub===s)),b:budOf(c,s)})).filter(x=>x.a||x.b);
+  return{title:`${CI[i%CI.length]} ${esc(c)} · ${month}`,html:`<div class="mini"><div style="background:#6366f1"><small>🎯 Budget</small><b>${f(b)}</b></div><div style="background:#ea580c"><small>💸 Kharcha</small><b>${f(a)}</b></div></div>
+  <div class="card" style="text-align:center"><small class="mu">${lf<0?"Budget se zyada kharch":"Bacha hua budget"}</small><div class="rem ${lf<0?"er":"ok"}" style="font-size:26px;font-weight:800">${f(Math.abs(lf))}</div></div>
+  <h2>Sub-category wise</h2><div class="card">${subs.length?subs.map(x=>`<div class="row" style="display:block"><div style="display:flex;justify-content:space-between"><span>${esc(x.s)}</span><b>${f(x.a)}${x.b?` <small class="mu">/ ${f(x.b)}</small>`:""}</b></div>${x.b?`<div class="bar"><i style="width:${Math.min(100,x.a/x.b*100)}%;background:${x.a>x.b?"var(--er)":"var(--ac)"}"></i></div>`:""}</div>`).join(""):'<span class="mu">–</span>'}</div>
+  <h2>Saari entries (${it.length})</h2><div class="card">${lstH(it)}<div class="tot"><span>Total (in sab ka jor)</span><span>${f(a)}</span></div></div>`}}
+ if(k==="inc"){const by=SRC.map(s=>({s,a:sum(inc.filter(x=>x.src===s))})).filter(x=>x.a);
+  return{title:"⬆️ Income · "+month,html:`<div class="card">${by.map(x=>`<div class="row"><span>${esc(x.s)}</span><b>${f(x.a)}</b></div>`).join("")||'<span class="mu">–</span>'}<div class="tot"><span>Total Income</span><span class="ok">${f(iv)}</span></div></div><h2>Saari entries</h2><div class="card">${lstH(inc)}</div>`}}
+ if(k==="bal"){const bal=iv-sp,r=iv?bal/iv*100:0;
+  return{title:"🏦 Savings ka hisaab",html:`<div class="card"><div class="row"><span>⬆️ Total Income</span><b class="ok">${f(iv)}</b></div><div class="row"><span>⬇️ Total Kharcha</span><b class="er">− ${f(sp)}</b></div><div class="tot"><span>Bacha (Income − Kharcha)</span><span class="${bal<0?"er":"ok"}">${f(bal)}</span></div></div>
+  <div class="card"><div class="row"><span>📈 Savings rate</span><b>${iv?r.toFixed(1)+"%":"–"}</b></div><div class="row"><span>🎯 Aap ka target</span><b>${S.target}%</b></div><div class="row"><span>Target ke liye chahiye</span><b>${f(iv*S.target/100)}</b></div><div class="row"><span>${iv*S.target/100-bal>0?"Abhi kam hai":"Target se zyada"}</span><b class="${iv*S.target/100-bal>0?"er":"ok"}">${f(Math.abs(iv*S.target/100-bal))}</b></div></div><small class="mu">Savings rate = (Income − Kharcha) ÷ Income × 100</small>`}}
+ const rows=Object.keys(CATS).map((c,j)=>({c,j,b:catBud(c),a:sum(ex.filter(x=>x.cat===c))})),tb=rows.reduce((s,r)=>s+r.b,0);
+ return{title:"💰 Budget & Kharcha · "+month,html:`<div class="card">${rows.map(r=>`<div class="row tap" onclick="detail('cat',${r.j})"><div>${CI[r.j%CI.length]} ${esc(r.c)}<br><small class="mu">Budget ${f(r.b)} · Kharcha ${f(r.a)}</small></div><b class="${r.b-r.a<0?"er":"ok"}">${f(r.b-r.a)}</b></div>`).join("")}
+  <div class="row"><span>Total Budget</span><b>${f(tb)}</b></div><div class="row"><span>Total Kharcha</span><b>− ${f(sp)}</b></div><div class="tot"><span>Bacha hua</span><span class="${tb-sp<0?"er":"ok"}">${f(tb-sp)}</span></div></div>
+  <h2>Saare kharche (${ex.length})</h2><div class="card">${lstH(ex)}</div>`}}
+/* ---------- edit ---------- */
+function findE(t,id){const k=t==="e"?"exp":"inc";for(const arr of [S[k],H[k]]){const x=arr.find(y=>y.id===id);if(x)return x}return null}
+function edit(t,id){const prev=SH;SH={edit:1,prevSh:prev,fn:()=>editH(t,id,prev)};renderSh()}
+function editH(t,id,prev){const x=findE(t,id);if(!x)return{title:"Edit",html:"<p>Entry nahi mili.</p>"};const e=t==="e";
+ return{title:"✏️ Entry edit karein",html:`<div class="card"><label>Date</label><input type="date" id="e_d" value="${esc(x.date)}">
+ <label>${e?"Description":"Notes"}</label><input id="e_ds" value="${esc(x.desc)}" autocomplete="off">
+ ${e?`<label>Category</label><select id="e_c" onchange="$('#e_sc').innerHTML=opts(CATS[this.value])">${opts(Object.keys(CATS),x.cat)}</select><label>Sub-category</label><select id="e_sc">${opts(CATS[x.cat]||[],x.sub)}</select>`
+ :`<label>Income Source</label><select id="e_c">${opts(SRC,x.src)}</select>`}
+ <label>Amount (Rs)</label><input id="e_am" type="number" inputmode="decimal" value="${x.amt}">
+ ${e?`<label>Payment Method</label><select id="e_pm">${opts(PAY,x.pay)}</select>`:""}
+ <button class="p" onclick="saveEdit('${t}',${id})">💾 Update karein</button><button class="s" style="width:100%;margin-top:8px;padding:11px" onclick="cancelEdit()">Cancel</button></div>`}}
+let EPREV=null;
+function cancelEdit(){const p=SH&&SH.prevSh;SH=p||null;renderSh()}
+function saveEdit(t,id){const x=findE(t,id);if(!x)return;const amt=parseFloat($("#e_am").value),d=$("#e_d").value;
+ if(!(amt>0))return toast("Amount likhein");if(!d)return toast("Date likhein");
+ x.date=d;x.desc=$("#e_ds").value.trim();x.amt=amt;
+ if(t==="e"){x.cat=$("#e_c").value;x.sub=$("#e_sc").value;x.pay=$("#e_pm").value}else x.src=$("#e_c").value;
+ if(cfgOk())S.q.push({op:"del",t,id},{op:"add",t,row:t==="e"?eRow(x):iRow(x)});
+ save();sync();toast("Update ho gaya ✓");SH=SH.prevSh||null;draw()}
+/* ---------- analysis ---------- */
 function anaView(){
- const ex=inM(dataE(),month),spent=sum(ex);const p=v=>spent?(v/spent*100).toFixed(1)+"%":"0%";
+ const E=dataE(),I=dataI(),ex=inM(E,month),spent=sum(ex),inc=sum(inM(I,month));
+ const now=today().slice(0,7),dim=dimOf(month),cur=month===now,el=cur?+today().slice(8):month<now?dim:0;
+ const B=Object.keys(CATS).reduce((a,c)=>a+catBud(c),0),left=cur?dim-el+1:0;
+ const early=cur&&el<5,proj=cur&&el>=5?spent/el*dim:spent,sp2=cur?proj:spent;
+ const last=mAdd(month,-1),lastE=inM(E,last),lastSp=sum(lastE);
+ const cats=Object.keys(CATS).map((c,i)=>{const a=sum(ex.filter(x=>x.cat===c));return{c,i,a,b:catBud(c),p:cur&&el>=5?a/el*dim:a,l:sum(lastE.filter(x=>x.cat===c))}});
+ const ins=[],add=(ic,tone,tx)=>ins.push(`<div class="in ${tone}"><span>${ic}</span><div>${tx}</div></div>`);
+ if(early&&spent>0)add("🕐","",`Mahine ke shuru ke din hain, is liye andaza (projection) <b>5 tarikh ke baad</b> sahi lagega. Abhi tak ${f(spent)} kharch hua${B?`, budget mein se <b>${f(B-spent)}</b> baqi hai`:""}.`);
+ if(!early&&spent>0&&B>0){
+  if(cur&&proj>B)add("⚠️","bad",`Is raftar se mahine ke end tak <b>~${f(proj)}</b> kharch ho jayega, yaani budget se <b>${f(proj-B)} zyada</b>.${left>0&&B>spent?` Baqi ${left} din mein rozana sirf <b>${f((B-spent)/left)}</b> tak kharch karein.`:" Budget khatam ho chuka hai, ab bachat karein."}`);
+  else if(cur)add("✅","good",`Is raftar se mahine ke end tak <b>~${f(proj)}</b> kharch hoga, budget ke andar rahenge aur <b>~${f(B-proj)}</b> bach sakte hain.`);
+  else add(spent>B?"⚠️":"✅",spent>B?"bad":"good",spent>B?`Is mahine budget se <b>${f(spent-B)} zyada</b> kharch hua.`:`Is mahine budget ke andar rahe, <b>${f(B-spent)}</b> bache.`)}
+ const risk=cats.filter(c=>c.b&&(cur?(el>=5&&c.p>c.b):c.a>c.b)).sort((a,b)=>(b.p-b.b)-(a.p-a.b)).slice(0,3);
+ if(risk.length)add("🚨","warn",(cur?"Ye categories budget cross kar sakti hain: ":"Budget se zyada gayi: ")+risk.map(c=>`<b>${esc(c.c)}</b> (${cur?"~"+f(c.p):f(c.a)} vs ${f(c.b)})`).join(", ")+".");
+ if(!early&&lastSp>0&&spent>0){const ch=(sp2-lastSp)/lastSp*100,up=[...cats].sort((a,b)=>(b.p-b.l)-(a.p-a.l))[0];
+  add(ch>5?"📈":ch<-5?"📉":"➖",ch>5?"warn":"good",`Pichle mahine (${f(lastSp)}) ke muqable mein kharcha ${cur?"(andaza) ":""}<b>${Math.abs(ch).toFixed(0)}% ${ch>=0?"zyada":"kam"}</b>.${up&&up.p-up.l>0?` Sab se bara izafa: <b>${esc(up.c)}</b> (+${f(up.p-up.l)}).`:""}`)}
+ if(spent>0){const top=[...cats].sort((a,b)=>b.a-a.a)[0];add("🥇","",`Sab se bara kharcha <b>${esc(top.c)}</b> hai: ${f(top.a)} (${pct(top.a,spent)}% kul kharche ka).`)}
+ const wd=Array(7).fill(0);ex.forEach(x=>wd[new Date(x.date+"T00:00:00").getDay()]+=x.amt);
+ if(ex.length>=5){const m=wd.indexOf(Math.max(...wd));add("🗓️","",`Sab se zyada kharcha <b>${DN[m]}</b> ko hota hai (${f(wd[m])}, kul ka ${pct(wd[m],spent)}%).`)}
+ if(!early&&inc>0&&spent>0){const rt=(inc-sp2)/inc*100;add(rt>=S.target?"🎯":"💡",rt>=S.target?"good":"warn",`${cur?"Andaza: ":""}Savings rate <b>${rt.toFixed(0)}%</b> (target ${S.target}%). ${rt>=S.target?"Target poora ho raha hai.":`Target ke liye ${f(inc*S.target/100-(inc-sp2))} aur bachana hoga.`}`)}
+ if(ex.length){const bg=[...ex].sort((a,b)=>b.amt-a.amt)[0];add("💥","",`Sab se bara single kharcha: <b>${f(bg.amt)}</b> (${esc(bg.desc||bg.sub)}, ${bg.date}).`)}
+ // pace chart
+ let pace="";
+ if(spent>0){const dl=Array(dim).fill(0);ex.forEach(x=>dl[+x.date.slice(8,10)-1]+=x.amt);let c=0;const cum=dl.map(v=>c+=v),up=cur?el:dim,top=Math.max(B,proj,spent,1)*1.08,X=d=>10+d/dim*280,Y=v=>115-v/top*105;
+  const pts=[[X(0),Y(0)]];for(let d=1;d<=up;d++)pts.push([X(d),Y(cum[d-1])]);
+  pace=`<svg viewBox="0 0 300 135" width="100%"><line x1="10" y1="115" x2="290" y2="115" stroke="var(--bd)"/>${B?`<line x1="10" y1="${Y(B)}" x2="290" y2="${Y(B)}" stroke="var(--er)" stroke-dasharray="4 3"/><text x="12" y="${Y(B)-3}" font-size="8" fill="var(--er)">Budget ${f(B)}</text><line x1="${X(0)}" y1="${Y(0)}" x2="${X(dim)}" y2="${Y(B)}" stroke="var(--mu)" stroke-dasharray="1 3"/>`:""}
+  <polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="${pts.map(p=>p.join(",")).join(" ")}"/>${cur&&el>=5&&el<dim?`<line x1="${X(el)}" y1="${Y(cum[el-1])}" x2="${X(dim)}" y2="${Y(proj)}" stroke="var(--wa)" stroke-width="2" stroke-dasharray="5 3"/>`:""}
+  <text x="10" y="128" font-size="8" fill="var(--mu)">1</text><text x="290" y="128" font-size="8" text-anchor="end" fill="var(--mu)">${dim}</text></svg>
+  <small class="mu"><span class="ok">━</span> Asal kharcha &nbsp;<span class="wa">╍</span> Andaza &nbsp;<span class="er">╍</span> Budget &nbsp;<span>···</span> Barabar raftar</small>`}
+ // donut
+ let donut="";
+ if(spent>0){const C=2*Math.PI*38;let off=0;const seg=cats.filter(c=>c.a>0).sort((a,b)=>b.a-a.a);
+  donut=`<div style="display:flex;gap:12px;align-items:center"><svg viewBox="0 0 100 100" width="130" height="130" style="flex:none"><g transform="rotate(-90 50 50)">${seg.map(c=>{const l=c.a/spent*C,s=`<circle cx="50" cy="50" r="38" fill="none" stroke="${CC[c.i%CC.length]}" stroke-width="16" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}"/>`;off+=l;return s}).join("")}</g><text x="50" y="52" text-anchor="middle" font-size="9" font-weight="700" fill="var(--tx)">${f(spent)}</text></svg>
+  <div style="flex:1;font-size:13px">${seg.map(c=>`<div style="display:flex;justify-content:space-between;gap:6px;padding:2px 0"><span><span style="color:${CC[c.i%CC.length]}">●</span> ${esc(c.c.length>16?c.c.slice(0,15)+"…":c.c)}</span><b>${pct(c.a,spent)}%</b></div>`).join("")}</div></div>`}
+ // weekly
+ const wk=[[1,7],[8,14],[15,21],[22,dim]].map(([a,b])=>({n:a+"-"+b,v:sum(ex.filter(x=>{const d=+x.date.slice(8,10);return d>=a&&d<=b}))})),wm=Math.max(1,...wk.map(x=>x.v));
+ const weekly=`<svg viewBox="0 0 300 110" width="100%">${wk.map((x,i)=>`<rect x="${i*72+14}" y="${80-x.v/wm*65}" width="44" height="${x.v/wm*65}" rx="5" fill="${CC[(i+3)%CC.length]}"/><text x="${i*72+36}" y="${76-x.v/wm*65}" font-size="8" text-anchor="middle" fill="var(--tx)">${x.v?f(x.v).slice(3):""}</text><text x="${i*72+36}" y="96" font-size="9" text-anchor="middle" fill="var(--mu)">${x.n}</text>`).join("")}</svg>`;
+ // forecast
+ const pm=[1,2,3].map(k=>mAdd(month,-k)).filter(m=>sum(inM(E,m))>0);
+ const avg=l=>l.length?l.reduce((a,b)=>a+b,0)/l.length:0;
+ const fc=cats.map(c=>({...c,f:pm.length?avg(pm.map(m=>sum(inM(E,m).filter(x=>x.cat===c.c)))):c.p})),fT=fc.reduce((s,c)=>s+c.f,0),aI=pm.length?avg(pm.map(m=>sum(inM(I,m)))):inc;
+ WF={sp:fT,inc:aI};
+ const fcH=fT>0?`<small class="mu">${pm.length?"Pichle "+pm.length+" mahine ke average par mabni":"Is mahine ki raftar par mabni"} (jitna data phone mein hai)</small>
+  ${fc.filter(c=>c.f>0||c.b).map(c=>`<div class="row"><div>${esc(c.c)}<br><small class="mu">Andaza ${f(c.f)} · Budget ${f(c.b)}</small></div><small class="${c.b&&c.f>c.b?"er":"ok"}" style="text-align:right">${!c.b?"Budget set karein":c.f>c.b?"Budget kam: +"+f(c.f-c.b):"✓ theek"+(c.f<c.b*.7?" (budget zyada hai)":"")}</small></div>`).join("")}
+  <div class="tot"><span>Agle mahine ka andaza</span><span>${f(fT)}</span></div>
+  <div class="row"><span>Average Income</span><b class="ok">${f(aI)}</b></div><div class="row"><span>Andaza bachat</span><b class="${aI-fT<0?"er":"ok"}">${f(aI-fT)}</b></div>`:'<span class="mu">Andaza lagane ke liye kuch kharche likhein.</span>';
+ // yearly
+ const yr=+month.slice(0,4);
+ const months=MN.map((n,i)=>{const k=yr+"-"+String(i+1).padStart(2,"0");return{n,I:sum(inM(I,k)),E:sum(inM(E,k))}});
+ const mx=Math.max(1,...months.map(x=>Math.max(x.I,x.E)));
  const subs=[];Object.keys(CATS).forEach(c=>CATS[c].forEach(s=>{const a=sum(ex.filter(x=>x.cat===c&&x.sub===s));if(a)subs.push({c,s,a})}));subs.sort((a,b)=>b.a-a.a);
  const pays=PAY.map(m=>({m,n:ex.filter(x=>x.pay===m).length,a:sum(ex.filter(x=>x.pay===m))})).filter(x=>x.n);
- const yr=+month.slice(0,4);
- const months=MN.map((n,i)=>{const k=yr+"-"+String(i+1).padStart(2,"0"),I=sum(inM(dataI(),k)),E=sum(inM(dataE(),k));return{n,I,E}});
- const mx=Math.max(1,...months.map(x=>Math.max(x.I,x.E)));
+ const ph=t=>spent>0?t:'<span class="mu">Is mahine koi kharcha nahi.</span>';
  return `<h1>Analysis</h1>${monthPick()}
- <h2>Sub-category (${month})</h2><div class="card">${subs.length?subs.map(x=>`<div class="row"><div>${esc(x.s)}<br><small>${esc(x.c)}</small></div><div style="text-align:right"><b>${f(x.a)}</b><br><small>${p(x.a)}</small></div></div>`).join(""):'<span class="mu">Is mahine koi kharcha nahi.</span>'}</div>
- <h2>Payment method</h2><div class="card">${pays.length?pays.map(x=>`<div class="row"><div>${x.m}<br><small>${x.n} transactions</small></div><b>${f(x.a)}</b></div>`).join(""):'<span class="mu">–</span>'}</div>
- <h2>Saal ${yr} — mahine ba mahine</h2><div class="card"><svg viewBox="0 0 300 130" width="100%" role="img" aria-label="Monthly income vs expense">${months.map((x,i)=>`<rect x="${i*25+3}" y="${110-x.I/mx*100}" width="9" height="${x.I/mx*100}" fill="var(--ok)"/><rect x="${i*25+13}" y="${110-x.E/mx*100}" width="9" height="${x.E/mx*100}" fill="var(--er)"/><text x="${i*25+13}" y="124" font-size="8" text-anchor="middle" fill="var(--mu)">${x.n}</text>`).join("")}</svg>
+ <h2>💡 Smart insights</h2>${ins.join("")||'<div class="card mu">Insights ke liye is mahine kuch entries likhein.</div>'}
+ <h2>📈 Kharcha kitni raftar se ho raha hai</h2><div class="card">${ph(pace)}</div>
+ <h2>🍩 Kharcha kahan gaya</h2><div class="card">${ph(donut)}</div>
+ <h2>📅 Haftay ke hisaab se</h2><div class="card">${ph(weekly)}</div>
+ <h2>🔮 Agla mahina — andaza &amp; plan</h2><div class="card">${fcH}
+  <h3 style="margin:14px 0 4px;font-size:15px">🧮 Agar kharcha kam karun?</h3><small class="mu">Slider hilayein:</small>
+  <input type="range" min="0" max="30" step="1" value="${WI}" oninput="WI=+this.value;wi()"><div id="wi"></div></div>
+ <h2>Saal ${yr} — mahine ba mahine</h2><div class="card"><svg viewBox="0 0 300 130" width="100%">${months.map((x,i)=>`<rect x="${i*25+3}" y="${110-x.I/mx*100}" width="9" height="${x.I/mx*100}" fill="var(--ok)"/><rect x="${i*25+13}" y="${110-x.E/mx*100}" width="9" height="${x.E/mx*100}" fill="var(--er)"/><text x="${i*25+13}" y="124" font-size="8" text-anchor="middle" fill="var(--mu)">${x.n}</text>`).join("")}</svg>
  <small class="mu"><span class="ok">■</span> Income &nbsp;<span class="er">■</span> Kharcha</small>
- ${months.filter(x=>x.I||x.E).map(x=>`<div class="row"><span>${x.n}</span><span class="mu">${f(x.I)} − ${f(x.E)}</span><b class="${x.I-x.E<0?"er":"ok"}">${f(x.I-x.E)}</b></div>`).join("")}</div>`}
+ ${months.filter(x=>x.I||x.E).map(x=>`<div class="row"><span>${x.n}</span><span class="mu">${f(x.I)} − ${f(x.E)}</span><b class="${x.I-x.E<0?"er":"ok"}">${f(x.I-x.E)}</b></div>`).join("")}</div>
+ <h2>Sub-category (${month})</h2><div class="card">${subs.length?subs.map(x=>`<div class="row"><div>${esc(x.s)}<br><small>${esc(x.c)}</small></div><div style="text-align:right"><b>${f(x.a)}</b><br><small>${pct(x.a,spent)}%</small></div></div>`).join(""):'<span class="mu">Is mahine koi kharcha nahi.</span>'}</div>
+ <h2>Payment method</h2><div class="card">${pays.length?pays.map(x=>`<div class="row"><div>${x.m}<br><small>${x.n} transactions</small></div><b>${f(x.a)}</b></div>`).join(""):'<span class="mu">–</span>'}</div>`}
+let WI=10,WF={sp:0,inc:0};
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+function wi(){const e=$("#wi");if(!e)return;const ns=WF.sp*(1-WI/100),sv=WF.inc-ns;
+ e.innerHTML=`<div class="row"><span>Kharcha ${WI}% kam</span><b>${f(ns)}</b></div><div class="row"><span>Mahine ki bachat</span><b class="${sv<0?"er":"ok"}">${f(sv)}</b></div><div class="row"><span>6 mahine mein</span><b class="${sv<0?"er":"ok"}">${f(sv*6)}</b></div><div class="row"><span>1 saal mein</span><b class="${sv<0?"er":"ok"}">${f(sv*12)}</b></div>`}
 function budView(){
  return `<h1>Budget &amp; Data</h1><div class="card"><label>Savings target %</label><input type="number" inputmode="decimal" value="${S.target}" onchange="S.target=+this.value||0;budCh()"></div>
  <h2>Monthly budget (Rs)</h2>${Object.keys(CATS).map(c=>`<div class="card"><b>${esc(c)}</b>${CATS[c].map(s=>`<div class="row"><span>${esc(s)}</span><input type="number" inputmode="decimal" style="width:110px;text-align:right" value="${budOf(c,s)||""}" placeholder="0" onchange="S.bud['${c.replace(/'/g,"\\'")}|${s.replace(/'/g,"\\'")}']=+this.value||0;budCh()"></div>`).join("")}</div>`).join("")}
@@ -143,7 +271,7 @@ function budView(){
  <button class="p" onclick="try{const o=JSON.parse($('#bk').value);if(!o.exp)throw 0;S=Object.assign({exp:[],inc:[],bud:{},target:20,cfg:{},q:[],bd:0},o);norm();save();toast('Restore ho gaya');draw()}catch(e){toast('Backup sahi nahi')}">♻️ Restore</button></div>`}
 function recView(){
  const l=[...inM(dataE(),month).map(x=>({...x,t:"e"})),...inM(dataI(),month).map(x=>({...x,t:"i"}))].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
- return `<h1>Records</h1>${monthPick()}<p class="mu" style="margin-top:0">Galat entry ko "Delete" dabakar hata dein.</p><div class="card">${l.length?l.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.cat+" › "+x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}<br><button class="s" style="color:var(--er)" onclick="del('${x.t}',${x.id})">Delete</button></div></div>`).join(""):'<span class="mu">Is mahine koi entry nahi.</span>'}</div>`}
+ return `<h1>Records</h1>${monthPick()}<p class="mu" style="margin-top:0">Galat entry ko ✏️ Edit ya 🗑 Delete karein.</p><div class="card">${l.length?l.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.cat+" › "+x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}${btns(x)}</div></div>`).join(""):'<span class="mu">Is mahine koi entry nahi.</span>'}</div>`}
 
 let H={exp:[],inc:[],yrs:{}},busy=0,msg="";
 const dataE=()=>S.exp.concat(H.exp),dataI=()=>S.inc.concat(H.inc);
@@ -164,9 +292,7 @@ async function sync(){
   const c=cut();r=await get("&from="+c);if(!r.ok)throw new Error("pull");
   const have=new Set([...S.exp,...S.inc].map(x=>x.id));
   r.exp.forEach(x=>have.has(x.id)||S.exp.push(x));r.inc.forEach(x=>have.has(x.id)||S.inc.push(x));
-  if(!S.q.length){const ids=new Set([...r.exp,...r.inc].map(x=>x.id));
-   S.exp=S.exp.filter(x=>ids.has(x.id));S.inc=S.inc.filter(x=>ids.has(x.id));
-   if(c){S.exp=S.exp.filter(x=>x.date.slice(0,7)>=c);S.inc=S.inc.filter(x=>x.date.slice(0,7)>=c)}}
+  if(!S.q.length){S.exp=r.exp.slice();S.inc=r.inc.slice()}
   if(r.budget&&!S.bd){S.bud=r.budget.bud||{};S.target=r.budget.target??S.target}
   save();busy=0;setStat("✅ Sab sync hai");if(tab!=="add")draw()
  }catch(e){busy=0;setStat("⚠️ Sync nahi hua (URL/password check karein) · "+S.q.length+" pending")}
@@ -182,8 +308,8 @@ addEventListener("online",()=>sync());addEventListener("offline",()=>setStat("")
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
 function draw(){
  const v={add:addView,rec:recView,dash:dashView,ana:anaView,bud:budView}[tab]();
- $("#app").innerHTML='<div id="st" class="mu" style="text-align:right;font-size:12px"></div>'+v;setStat();
- $("#nav").innerHTML=[["add","➕","Entry"],["rec","🧾","Records"],["dash","📊","Dashboard"],["ana","🔍","Analysis"],["bud","⚙️","Budget"]].map(([k,i,l])=>`<button class="${tab===k?"on":""}" style="flex:1" onclick="tab='${k}';draw();scrollTo(0,0)"><span>${i}</span>${l}</button>`).join("")}
+ $("#app").innerHTML='<div id="st" class="mu" style="text-align:right;font-size:12px"></div>'+v;setStat();if(tab==="ana")wi();if(!(SH&&SH.edit))renderSh();
+ $("#nav").innerHTML=[["dash","📊","Dashboard"],["add","➕","Entry"],["rec","🧾","Records"],["ana","🔍","Analysis"],["bud","⚙️","Budget"]].map(([k,i,l])=>`<button class="${tab===k?"on":""}" style="flex:1" onclick="tab='${k}';draw();scrollTo(0,0)"><span>${i}</span>${l}</button>`).join("")}
 draw();ensureYear(+month.slice(0,4));sync();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script></body></html>
