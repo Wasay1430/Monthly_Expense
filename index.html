@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hisaab">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.png"><meta name="theme-color" content="#0f766e"><title>Hisaab – Personal Finance</title>
+<style>
+:root{--bg:#eef3fb;--card:#fff;--tx:#14181f;--mu:#6b7280;--ac:#0f766e;--ac2:#0ea5e9;--bd:#e5e7eb;--ok:#15803d;--wa:#b45309;--er:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#181c23;--tx:#eef0f3;--mu:#98a1ae;--ac:#2dd4bf;--ac2:#38bdf8;--bd:#2a303a;--ok:#4ade80;--wa:#fbbf24;--er:#f87171}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#181c23;--tx:#eef0f3;--mu:#98a1ae;--ac:#2dd4bf;--ac2:#38bdf8;--bd:#2a303a;--ok:#4ade80;--wa:#fbbf24;--er:#f87171}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Segoe UI",sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:4px 0 12px}h2{font-size:14px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px}.k small{color:var(--mu);font-size:12px}.k b{display:block;font-size:19px;margin-top:2px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,select,button{font:inherit;width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+button.p{background:var(--ac);color:#fff;border:0;font-weight:600;margin-top:14px;padding:13px}
+button.s{width:auto;padding:6px 10px;font-size:13px}
+.seg{display:flex;gap:6px}.seg button{padding:9px}.seg button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.row small{color:var(--mu)}.bar{height:7px;border-radius:4px;background:var(--bd);overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:var(--ac)}
+.ok{color:var(--ok)}.wa{color:var(--wa)}.er{color:var(--er)}.mu{color:var(--mu)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{border:0;background:none;font-size:12px;color:var(--mu);padding:6px 2px}nav button.on{color:var(--ac);font-weight:700}
+nav button span{display:block;font-size:20px}
+textarea{width:100%;height:90px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);padding:8px;font:12px monospace}
+.toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1}
+
+body{background:linear-gradient(180deg,#e0f2fe 0,#eef3fb 220px,var(--bg) 100%) fixed}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:linear-gradient(180deg,#0b2a33 0,#0e1116 240px) fixed}}
+h1{font-size:22px;background:linear-gradient(90deg,var(--ac),#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{box-shadow:0 2px 10px rgba(15,118,110,.08)}
+button.p{background:linear-gradient(135deg,var(--ac),var(--ac2));box-shadow:0 4px 12px rgba(14,165,233,.3)}
+.seg button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:transparent}
+nav{box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+nav button.on span{background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:14px;padding:2px 14px;margin:0 auto 2px;width:fit-content}
+.hero{border-radius:20px;padding:18px;color:#fff;text-align:center;margin-bottom:12px;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.hero.good{background:linear-gradient(135deg,#059669,#0ea5e9)}.hero.warn{background:linear-gradient(135deg,#f59e0b,#ea580c)}.hero.bad{background:linear-gradient(135deg,#dc2626,#be185d)}.hero.none{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+.hero small{opacity:.92}.hero .big{font-size:36px;font-weight:800;margin:4px 0;letter-spacing:-.5px}
+.hero .hb{height:10px;border-radius:6px;background:rgba(255,255,255,.3);overflow:hidden;margin:10px 0 6px}.hero .hb i{display:block;height:100%;background:#fff;border-radius:6px}
+.chip{display:inline-block;background:rgba(255,255,255,.22);border-radius:20px;padding:5px 12px;font-size:13px;margin-top:8px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mini div{border-radius:14px;padding:11px;color:#fff}.mini small{opacity:.9}.mini b{display:block;font-size:18px}
+.cc{border-radius:16px;padding:13px;margin-bottom:10px;background:var(--card);border:1px solid var(--bd);border-left-width:6px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.cc .t{display:flex;justify-content:space-between;align-items:center;gap:8px}.cc .rem{font-size:21px;font-weight:800}
+.cc .bar{height:9px}
+</style></head><body>
+<main id="app"></main><div class="toast" id="t"></div>
+<nav id="nav"></nav>
+<script>
+const CATS={"Donations":["Charity","Masjid/Madrasa","Family Support","Other Donation"],"Utility Bills":["Electricity","Gas","Water","Internet","Mobile","Other Utility"],"Self Petrol":["Car Petrol","Motorcycle Petrol","Other Fuel"],"Groceries":["General Grocery","Household Items","Kitchen Items","Other Grocery"],"Guards Fees":["Monthly Guard Fee","Extra/Tip","Other Guard Expense"],"Daily Basis Expenses":["Tea/Coffee","Food/Snacks","Small Purchases","Miscellaneous"],"Loan to be Returned to Papa":["Principal Returned","Partial Repayment","Other"],"Meat Purchase":["Beef","Mutton","Chicken","Fish","Other Meat"],"Car Parking":["Office Parking","Shopping/Market","Other Parking"],"Wife Return to Home via InDrive":["InDrive Fare","Other Ride"],"Yaseen Pion":["Monthly Payment","Extra Payment","Other"]};
+const PAY=["Cash","Bank Transfer","Debit Card","Credit Card","Mobile Wallet","Other"];
+const SRC=["Salary","Freelance","Business","Bonus","Other"];
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let S={exp:[],inc:[],bud:{},target:20,cfg:{},q:[],bd:0};
+try{const r=localStorage.getItem("hisaab_v1");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const norm=()=>{S.cfg=Object.assign({url:"",token:"",keep:3},S.cfg);S.q=S.q||[]};norm();
+const save=()=>{try{localStorage.setItem("hisaab_v1",JSON.stringify(S))}catch(e){toast("Save nahi hua!")}};
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+let tab="add",mode="exp",month=today().slice(0,7),FM={date:today(),cat:Object.keys(CATS)[0],pay:"Cash",src:"Salary"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const f=n=>"Rs "+Math.round(n).toLocaleString("en-US");
+function toast(m){const t=$("#t");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1600)}
+const inM=(list,m)=>list.filter(x=>x.date.slice(0,7)===m);
+const sum=l=>l.reduce((a,x)=>a+x.amt,0);
+const budOf=(c,s)=>+S.bud[c+"|"+s]||0;
+const catBud=c=>CATS[c].reduce((a,s)=>a+budOf(c,s),0);
+const status=(b,a)=>!b?["No Budget","mu"]:a>b?["Over","er"]:a>=.8*b?["Warning","wa"]:["OK","ok"];
+function opts(a,v){return a.map(x=>`<option ${x===v?"selected":""}>${esc(x)}</option>`).join("")}
+function addView(){
+ const exp=mode==="exp";
+ const recent=[...S.exp.map(x=>({...x,t:"e"})),...S.inc.map(x=>({...x,t:"i"}))].sort((a,b)=>b.id-a.id).slice(0,12);
+ return `<h1>Nayi Entry</h1><div class="card"><div class="seg"><button class="${exp?"on":""}" onclick="mode='exp';draw()">💸 Kharcha</button><button class="${!exp?"on":""}" onclick="mode='inc';draw()">💰 Income</button></div>
+ <label>Date</label><input type="date" id="d" value="${FM.date}" onchange="FM.date=this.value">
+ ${exp?`<label>Description</label><input id="ds" placeholder="Kya kharida?" autocomplete="off">
+ <label>Category</label><select id="c" onchange="setCat(this.value)">${opts(Object.keys(CATS),FM.cat)}</select>
+ <label>Sub-category</label><select id="sc">${opts(CATS[FM.cat])}</select>`:`<label>Income Source</label><select id="c" onchange="FM.src=this.value">${opts(SRC,FM.src)}</select><label>Notes</label><input id="ds" autocomplete="off">`}
+ <label>Amount (Rs)</label><input id="am" type="number" inputmode="decimal" placeholder="0">
+ ${exp?`<label>Payment Method</label><select id="pm" onchange="FM.pay=this.value">${opts(PAY,FM.pay)}</select>`:""}
+ <button class="p" onclick="addEntry()">Save karein</button></div>
+ <h2>Haal ki entries</h2><div class="card">${recent.length?recent.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}<br><button class="s" style="color:var(--er)" onclick="del('${x.t}',${x.id})">Delete</button></div></div>`).join(""):'<span class="mu">Abhi koi entry nahi.</span>'}</div>`}
+function setCat(v){FM.cat=v;$('#sc').innerHTML=opts(CATS[v])}
+function addEntry(){
+ const amt=parseFloat($("#am").value);if(!(amt>0))return toast("Amount likhein");
+ const base={id:Date.now(),date:FM.date||today(),desc:$("#ds").value.trim(),amt};
+ let en;if(mode==="exp"){en={...base,cat:$("#c").value,sub:$("#sc").value,pay:$("#pm").value};S.exp.push(en);if(cfgOk())S.q.push({op:"add",t:"e",row:eRow(en)})}
+ else{en={...base,src:$("#c").value};S.inc.push(en);if(cfgOk())S.q.push({op:"add",t:"i",row:iRow(en)})}
+ save();sync();toast("Save ho gaya ✓");draw()}
+function del(t,id){if(!confirm("Delete karein?"))return;const k=t==="e"?"exp":"inc";S[k]=S[k].filter(x=>x.id!==id);H[k]=H[k].filter(x=>x.id!==id);if(cfgOk())S.q.push({op:"del",t,id});save();sync();draw()}
+function monthPick(){return `<input type="month" value="${month}" onchange="month=this.value||month;ensureYear(+month.slice(0,4));draw()" style="margin-bottom:12px">`}
+const CC=["#7c3aed","#f59e0b","#ea580c","#16a34a","#0ea5e9","#db2777","#6366f1","#dc2626","#0891b2","#9333ea","#0f766e"];
+const CI=["🤲","💡","⛽","🛒","💂","☕","🤝","🥩","🅿️","🚕","👤"];
+function dashView(){
+ const ex=inM(dataE(),month),inc=sum(inM(dataI(),month)),spent=sum(ex);
+ const budget=Object.keys(CATS).reduce((a,c)=>a+catBud(c),0),bal=inc-spent,rem=budget-spent;
+ const [y,m]=month.split("-").map(Number),dim=new Date(y,m,0).getDate();
+ const now=today().slice(0,7),days=month===now?+today().slice(8):dim;
+ const left=month===now?dim-days+1:(month<now?0:dim);
+ const used=budget?Math.min(100,Math.round(spent/budget*100)):0;
+ const cls=!budget?"none":rem<0?"bad":spent>=.8*budget?"warn":"good";
+ const hero=!budget?`<div class="hero none"><small>Budget abhi set nahi hai</small><div class="big">${f(spent)}</div><small>is mahine ka kharcha</small><br><span class="chip">⚙️ Budget tab mein har category ka budget likhein</span></div>`
+ :`<div class="hero ${cls}"><small>💰 Budget mein se kharch karne ke liye bacha</small><div class="big">${rem<0?"-":""}${f(Math.abs(rem))}</div>
+ <div class="hb"><i style="width:${used}%"></i></div><small>Budget ${f(budget)} · Kharcha ${f(spent)} · ${Math.round(spent/budget*100)}% use hua</small><br>
+ ${rem<0?`<span class="chip">⚠️ Budget se ${f(-rem)} zyada kharch ho gaya</span>`:left>0?`<span class="chip">📅 Rozana ${f(rem/left)} kharch kar sakte hain (${left} din baqi)</span>`:`<span class="chip">Mahina khatam</span>`}</div>`;
+ const rows=Object.keys(CATS).map((c,i)=>({c,i,b:catBud(c),a:sum(ex.filter(x=>x.cat===c))}));
+ const cards=rows.map(r=>{const col=CC[r.i%CC.length],left=r.b-r.a,w=r.b?Math.min(100,r.a/r.b*100):0,[s,cl]=status(r.b,r.a);
+  const barc=cl==="er"?"var(--er)":cl==="wa"?"var(--wa)":col;
+  return `<div class="cc" style="border-left-color:${col}"><div class="t"><span>${CI[r.i%CI.length]} <b>${esc(r.c)}</b></span>${r.b?`<span class="rem ${left<0?"er":""}" style="${left<0?"":"color:"+col}">${left<0?"-":""}${f(Math.abs(left))}</span>`:`<span class="mu">Budget set nahi</span>`}</div>
+  <div class="bar"><i style="width:${w}%;background:${barc}"></i></div>
+  <div style="display:flex;justify-content:space-between;margin-top:5px"><small class="mu">Kharcha ${f(r.a)}${r.b?" / Budget "+f(r.b):""}</small><small class="${cl}"><b>${r.b?(left<0?"Over":"bacha"):""}${r.b&&left>=0&&cl!=="ok"?" · "+s:""}</b></small></div></div>`}).join("");
+ return `<h1>Dashboard</h1>${monthPick()}${hero}
+ <div class="mini"><div style="background:linear-gradient(135deg,#16a34a,#22c55e)"><small>⬆️ Income</small><b>${f(inc)}</b></div><div style="background:linear-gradient(135deg,#ea580c,#f59e0b)"><small>⬇️ Kharcha</small><b>${f(spent)}</b></div>
+ <div style="background:linear-gradient(135deg,#2563eb,#6366f1)"><small>🏦 Income − Kharcha</small><b>${f(bal)}</b></div><div style="background:linear-gradient(135deg,#7c3aed,#db2777)"><small>📈 Savings rate</small><b>${inc?Math.round(bal/inc*100)+"%":"–"}</b><small>Target ${S.target}%</small></div></div>
+ <h2>Category wise — kitna bacha hai</h2>${cards}`}
+function anaView(){
+ const ex=inM(dataE(),month),spent=sum(ex);const p=v=>spent?(v/spent*100).toFixed(1)+"%":"0%";
+ const subs=[];Object.keys(CATS).forEach(c=>CATS[c].forEach(s=>{const a=sum(ex.filter(x=>x.cat===c&&x.sub===s));if(a)subs.push({c,s,a})}));subs.sort((a,b)=>b.a-a.a);
+ const pays=PAY.map(m=>({m,n:ex.filter(x=>x.pay===m).length,a:sum(ex.filter(x=>x.pay===m))})).filter(x=>x.n);
+ const yr=+month.slice(0,4);
+ const months=MN.map((n,i)=>{const k=yr+"-"+String(i+1).padStart(2,"0"),I=sum(inM(dataI(),k)),E=sum(inM(dataE(),k));return{n,I,E}});
+ const mx=Math.max(1,...months.map(x=>Math.max(x.I,x.E)));
+ return `<h1>Analysis</h1>${monthPick()}
+ <h2>Sub-category (${month})</h2><div class="card">${subs.length?subs.map(x=>`<div class="row"><div>${esc(x.s)}<br><small>${esc(x.c)}</small></div><div style="text-align:right"><b>${f(x.a)}</b><br><small>${p(x.a)}</small></div></div>`).join(""):'<span class="mu">Is mahine koi kharcha nahi.</span>'}</div>
+ <h2>Payment method</h2><div class="card">${pays.length?pays.map(x=>`<div class="row"><div>${x.m}<br><small>${x.n} transactions</small></div><b>${f(x.a)}</b></div>`).join(""):'<span class="mu">–</span>'}</div>
+ <h2>Saal ${yr} — mahine ba mahine</h2><div class="card"><svg viewBox="0 0 300 130" width="100%" role="img" aria-label="Monthly income vs expense">${months.map((x,i)=>`<rect x="${i*25+3}" y="${110-x.I/mx*100}" width="9" height="${x.I/mx*100}" fill="var(--ok)"/><rect x="${i*25+13}" y="${110-x.E/mx*100}" width="9" height="${x.E/mx*100}" fill="var(--er)"/><text x="${i*25+13}" y="124" font-size="8" text-anchor="middle" fill="var(--mu)">${x.n}</text>`).join("")}</svg>
+ <small class="mu"><span class="ok">■</span> Income &nbsp;<span class="er">■</span> Kharcha</small>
+ ${months.filter(x=>x.I||x.E).map(x=>`<div class="row"><span>${x.n}</span><span class="mu">${f(x.I)} − ${f(x.E)}</span><b class="${x.I-x.E<0?"er":"ok"}">${f(x.I-x.E)}</b></div>`).join("")}</div>`}
+function budView(){
+ return `<h1>Budget &amp; Data</h1><div class="card"><label>Savings target %</label><input type="number" inputmode="decimal" value="${S.target}" onchange="S.target=+this.value||0;budCh()"></div>
+ <h2>Monthly budget (Rs)</h2>${Object.keys(CATS).map(c=>`<div class="card"><b>${esc(c)}</b>${CATS[c].map(s=>`<div class="row"><span>${esc(s)}</span><input type="number" inputmode="decimal" style="width:110px;text-align:right" value="${budOf(c,s)||""}" placeholder="0" onchange="S.bud['${c.replace(/'/g,"\\'")}|${s.replace(/'/g,"\\'")}']=+this.value||0;budCh()"></div>`).join("")}</div>`).join("")}
+ <h2>☁️ Google Sheet Sync</h2><div class="card"><small class="mu" id="st2"></small>
+ <label>Web app URL</label><input id="cu" value="${esc(S.cfg.url)}" placeholder="https://script.google.com/macros/s/.../exec" autocapitalize="off">
+ <label>Password (token)</label><input id="ct" value="${esc(S.cfg.token)}" autocapitalize="off">
+ <label>Phone mein kitne mahine ka data rakhein</label><select onchange="S.cfg.keep=+this.value;save();sync()">${[[0,"Sab (kabhi na hatayein)"],[2,"2 mahine"],[3,"3 mahine"],[6,"6 mahine"],[12,"12 mahine"]].map(([v,l])=>`<option value="${v}" ${+S.cfg.keep===v?"selected":""}>${l}</option>`).join("")}</select>
+ <button class="p" onclick="saveCfg()">Save &amp; Sync karein</button></div>
+ <h2>Backup / Restore</h2><div class="card"><small class="mu">Data sirf is phone ke browser mein hai. Kabhi kabhi backup copy karke Notes mein save kar lein.</small>
+ <button class="p" onclick="navigator.clipboard.writeText(JSON.stringify(S)).then(()=>toast('Backup copy ho gaya'),()=>{$('#bk').value=JSON.stringify(S);$('#bk').select()})">📋 Backup copy karein</button>
+ <label>Restore: yahan backup paste karein</label><textarea id="bk"></textarea>
+ <button class="p" onclick="try{const o=JSON.parse($('#bk').value);if(!o.exp)throw 0;S=Object.assign({exp:[],inc:[],bud:{},target:20,cfg:{},q:[],bd:0},o);norm();save();toast('Restore ho gaya');draw()}catch(e){toast('Backup sahi nahi')}">♻️ Restore</button></div>`}
+function recView(){
+ const l=[...inM(dataE(),month).map(x=>({...x,t:"e"})),...inM(dataI(),month).map(x=>({...x,t:"i"}))].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ return `<h1>Records</h1>${monthPick()}<p class="mu" style="margin-top:0">Galat entry ko "Delete" dabakar hata dein.</p><div class="card">${l.length?l.map(x=>`<div class="row"><div><b>${esc(x.desc||x.cat||x.src)}</b><br><small>${x.date} · ${esc(x.t==="e"?x.cat+" › "+x.sub+" · "+x.pay:"Income · "+x.src)}</small></div><div style="text-align:right" class="${x.t==="e"?"":"ok"}">${x.t==="e"?"-":"+"}${f(x.amt)}<br><button class="s" style="color:var(--er)" onclick="del('${x.t}',${x.id})">Delete</button></div></div>`).join(""):'<span class="mu">Is mahine koi entry nahi.</span>'}</div>`}
+
+let H={exp:[],inc:[],yrs:{}},busy=0,msg="";
+const dataE=()=>S.exp.concat(H.exp),dataI=()=>S.inc.concat(H.inc);
+const cfgOk=()=>S.cfg.url&&S.cfg.token;
+const cut=()=>{const k=+S.cfg.keep;if(!k)return"";const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-(k-1));return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const eRow=x=>[x.id,x.date,x.desc,x.cat,x.sub,x.amt,x.pay,+x.date.slice(5,7),+x.date.slice(0,4)];
+const iRow=x=>[x.id,x.date,x.src,x.desc,x.amt,+x.date.slice(5,7),+x.date.slice(0,4)];
+function setStat(m){if(m!==undefined)msg=m;const t=busy?"⏳ Sync ho raha hai…":m!==undefined&&m?m:!cfgOk()?"☁️ Sync setup nahi hua":!navigator.onLine?"📴 Offline · "+S.q.length+" pending":S.q.length?"⏳ "+S.q.length+" pending":"✅ Sab sync hai";["st","st2"].forEach(i=>{const e=document.getElementById(i);if(e)e.textContent=t})}
+const get=async q=>(await fetch(S.cfg.url+"?token="+encodeURIComponent(S.cfg.token)+q)).json();
+async function sync(){
+ if(busy||!cfgOk()||!navigator.onLine)return setStat("");
+ busy=1;setStat("");
+ try{
+  const ops=S.q.slice(),body={token:S.cfg.token,ops};if(S.bd)body.budget={bud:S.bud,target:S.target};
+  let r=await(await fetch(S.cfg.url,{method:"POST",body:JSON.stringify(body)})).json();
+  if(!r.ok)throw new Error(r.err||"push");
+  S.q.splice(0,ops.length);if(body.budget)S.bd=0;
+  const c=cut();r=await get("&from="+c);if(!r.ok)throw new Error("pull");
+  const have=new Set([...S.exp,...S.inc].map(x=>x.id));
+  r.exp.forEach(x=>have.has(x.id)||S.exp.push(x));r.inc.forEach(x=>have.has(x.id)||S.inc.push(x));
+  if(!S.q.length){const ids=new Set([...r.exp,...r.inc].map(x=>x.id));
+   S.exp=S.exp.filter(x=>ids.has(x.id));S.inc=S.inc.filter(x=>ids.has(x.id));
+   if(c){S.exp=S.exp.filter(x=>x.date.slice(0,7)>=c);S.inc=S.inc.filter(x=>x.date.slice(0,7)>=c)}}
+  if(r.budget&&!S.bd){S.bud=r.budget.bud||{};S.target=r.budget.target??S.target}
+  save();busy=0;setStat("✅ Sab sync hai");if(tab!=="add")draw()
+ }catch(e){busy=0;setStat("⚠️ Sync nahi hua (URL/password check karein) · "+S.q.length+" pending")}
+}
+async function ensureYear(y){const c=cut();if(!c||!cfgOk()||H.yrs[y]||y+"-01">=c)return;
+ if(!navigator.onLine)return toast("Purana data ke liye internet chahiye");
+ try{const to=c<(y+1)+"-01"?c:(y+1)+"-01",r=await get("&from="+y+"-01&to="+to);if(!r.ok)throw 0;
+  const h=new Set([...H.exp,...H.inc].map(x=>x.id));r.exp.forEach(x=>h.has(x.id)||H.exp.push(x));r.inc.forEach(x=>h.has(x.id)||H.inc.push(x));H.yrs[y]=1;draw()}catch(e){toast("Purana data load nahi hua")}}
+function saveCfg(){S.cfg.url=$("#cu").value.trim();S.cfg.token=$("#ct").value.trim();
+ S.q=[...S.exp.map(x=>({op:"add",t:"e",row:eRow(x)})),...S.inc.map(x=>({op:"add",t:"i",row:iRow(x)}))];S.bd=1;save();toast("Sync shuru…");sync()}
+function budCh(){S.bd=1;save();sync()}
+addEventListener("online",()=>sync());addEventListener("offline",()=>setStat(""));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
+function draw(){
+ const v={add:addView,rec:recView,dash:dashView,ana:anaView,bud:budView}[tab]();
+ $("#app").innerHTML='<div id="st" class="mu" style="text-align:right;font-size:12px"></div>'+v;setStat();
+ $("#nav").innerHTML=[["add","➕","Entry"],["rec","🧾","Records"],["dash","📊","Dashboard"],["ana","🔍","Analysis"],["bud","⚙️","Budget"]].map(([k,i,l])=>`<button class="${tab===k?"on":""}" style="flex:1" onclick="tab='${k}';draw();scrollTo(0,0)"><span>${i}</span>${l}</button>`).join("")}
+draw();ensureYear(+month.slice(0,4));sync();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script></body></html>
